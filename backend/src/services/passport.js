@@ -4,6 +4,8 @@ const { Strategy: JWTStrategy, ExtractJwt } = require("passport-jwt");
 const bcrypt = require("bcrypt");
 const models = require("../models");
 
+const { JWT_SECRET } = process.env;
+
 passport.use(
   new LocalStrategy(
     {
@@ -12,16 +14,16 @@ passport.use(
     },
     (formMail, formPassword, done) => {
       try {
-        models.user.findOneByMail(formMail).then(([result]) => {
+        models.users.findOneByMail(formMail).then(([result]) => {
           if (!result.length)
             return done(null, false, { msg: "Wrong username!" });
 
-          const user = result[0];
-          const isPasswordOK = bcrypt.compareSync(formPassword, user.password);
+          const users = result[0];
+          const isPasswordOK = bcrypt.compareSync(formPassword, users.password);
           if (!isPasswordOK) return done(null, false, "Wrong password!");
 
-          delete user.password;
-          return done(null, user);
+          delete users.password;
+          return done(null, users);
         });
       } catch (err) {
         console.warn(err);
@@ -36,19 +38,19 @@ passport.use(
   new JWTStrategy(
     {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.JWT_SECRET,
+      secretOrKey: JWT_SECRET,
     },
     (jwtPayload, done) => {
-      const user = jwtPayload;
-      return done(null, user);
+      const users = jwtPayload;
+      return done(null, users);
     }
   )
 );
 
-passport.serializeUser((user, done) => {
-  done(null, user);
+passport.serializeUser((users, done) => {
+  done(null, users);
 });
 
-passport.deserializeUser((user, done) => {
-  done(null, user);
+passport.deserializeUser((users, done) => {
+  done(null, users);
 });
