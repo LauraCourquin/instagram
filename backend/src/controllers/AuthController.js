@@ -26,8 +26,8 @@ class AuthController {
   };
 
   static login = (req, res) => {
-    const token = jwt.sign(req.users, process.env.JWT_SECRET);
-    res.status(200).json({ users: req.users, token });
+    const token = jwt.sign(req.user, process.env.JWT_SECRET);
+    res.status(200).json({ users: req.user, token });
   };
 }
 
